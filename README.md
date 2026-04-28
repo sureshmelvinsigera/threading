@@ -2,9 +2,7 @@
 
 Your app freezes. CPU is fine. Memory is fine. Nothing crashed. You've seen this before. Maybe in production. Maybe at 9:30am when the market opens. Today we find out exactly why — and how to fix it.
 
----
-
-## Learning Objectives
+#### Learning Objectives
 
 By the end of this session, you will be able to:
 
@@ -15,9 +13,7 @@ By the end of this session, you will be able to:
 - Fire concurrent operations with `CompletableFuture` and prove the difference — **3 seconds vs 1 second**
 - Understand why **async doesn't mean parallel** — it means **non-blocking**
 
----
-
-## Step 1 — The Process and Its Threads `0:05 – 0:12`
+#### Step 1 — The Process and Its Threads `0:05 – 0:12`
 
 ```
 ┌─────────────────────────────────────────┐
@@ -46,9 +42,7 @@ System.out.println("Main ID    : " + Thread.currentThread().threadId());
 
 Open a second terminal and type `jps` — you'll see the **exact same PID**. The process is real. It's living in the OS right now.
 
----
-
-### Threads — Multiple Workers, Shared Memory
+#### Threads — Multiple Workers, Shared Memory
 
 ```java
 static int counter = 0;
@@ -69,9 +63,7 @@ System.out.println("counter: " + counter);
 
 Run it a few times. Watch the **output order change**. T2 sometimes prints before T1 — even though T1 started first. That's the **OS scheduler**. You don't control it. Nobody does.
 
----
-
-### join() — Main Thread Waits
+#### join() — Main Thread Waits
 
 ```java
 t1.start();
@@ -84,9 +76,7 @@ System.out.println("counter: " + counter);
 
 Without `join()` — main prints counter before T1 and T2 finish. With `join()` — main waits. The result is correct.
 
----
-
-## Step 2 — The Race Condition `0:18 – 0:25`
+#### Step 2 — The Race Condition `0:18 – 0:25`
 
 ```java
 Runnable task = () -> {
@@ -138,9 +128,7 @@ Run 9  → Expected: 20000, Got: 13856
 Run 10 → Expected: 20000, Got: 15102
 ```
 
----
-
-## Step 3 — The Fix `0:25 – 0:30`
+#### Step 3 — The Fix `0:25 – 0:30`
 
 ```java
 static synchronized void increment() {
@@ -167,9 +155,7 @@ Run 10 → Expected: 20000, Got: 20000
 
 The trade-off: **contention**. Blocked threads waiting. Use `synchronized` as **narrowly as possible**.
 
----
-
-## Thread Pools — Reuse, Don't Rebuild `0:30 – 0:35`
+#### Thread Pools — Reuse, Don't Rebuild `0:30 – 0:35`
 
 Creating a thread has **overhead** — memory allocation, OS registration, setup, teardown. For applications handling many short-lived jobs, creating a new thread per task is wasteful.
 
@@ -197,7 +183,7 @@ In production Java — you almost never write `new Thread()` directly. **`Execut
 
 ---
 
-## Async — Stop Waiting, Start Working `0:35 – 0:43`
+### Async — Stop Waiting, Start Working `0:35 – 0:43`
 
 Thread pools solve **reuse**. But there's still a problem — what happens when a thread **spends most of its time waiting**?
 
@@ -205,7 +191,7 @@ A thread making a network call sits **idle** for most of that operation. Under l
 
 **Key distinction: async doesn't mean parallel. It means non-blocking.**
 
-### Blocking — sequential, main thread waits for each call
+#### Blocking — sequential, main thread waits for each call
 
 ```java
 long start = System.currentTimeMillis();
@@ -224,7 +210,7 @@ Fetching MSFT on thread: main
 Blocking: 3068ms
 ```
 
-### Async — all three fire at the same time
+#### Async — all three fire at the same time
 
 ```java
 start = System.currentTimeMillis();
@@ -251,9 +237,7 @@ Async: 1009ms
 
 `CompletableFuture` is an **IOU** — fire the work, move on, collect the result when ready. By default it runs on the **common ForkJoinPool** — a shared pool the JVM manages for you.
 
----
-
-## Choosing the Right Tool `0:43 – 0:44`
+#### Choosing the Right Tool `0:43 – 0:44`
 
 | Work Type | Model | Why |
 |---|---|---|
@@ -262,9 +246,7 @@ Async: 1009ms
 
 **CPU-bound — add more threads. I/O-bound — go async.**
 
----
-
-## Summary + Q&A `0:44 – 0:45`
+#### Summary + Q&A `0:44 – 0:45`
 
 - A **process** is a fully isolated running instance of a program — its own **memory**, its own **PID**. One process crashing cannot affect another.
 
